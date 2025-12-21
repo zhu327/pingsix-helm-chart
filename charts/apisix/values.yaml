@@ -24,12 +24,12 @@ global:
 
 image:
   # -- Apache APISIX image repository
-  repository: apache/apisix
+  repository: zhu327/pingsix
   # -- Apache APISIX image pull policy
   pullPolicy: IfNotPresent
   # -- Apache APISIX image tag
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 3.14.1-ubuntu
+  tag: latest
 
 # -- set false to use `Deployment`, set true to use `DaemonSet`
 useDaemonSet: false
