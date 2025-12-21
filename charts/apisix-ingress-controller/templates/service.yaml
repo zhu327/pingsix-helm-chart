@@ -27,5 +27,9 @@ spec:
     port: 8080
     protocol: TCP
     targetPort: metrics
+  - name: etcd
+    port: {{ .Values.etcd.port }}
+    protocol: TCP
+    targetPort: etcd
   selector:
    {{- include "apisix-ingress-controller-manager.selectorLabels" . | nindent 4 }}

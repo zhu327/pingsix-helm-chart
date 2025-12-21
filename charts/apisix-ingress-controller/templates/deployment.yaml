@@ -53,7 +53,7 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: ETCD_ADAPTER_ADDR
-          value: "0.0.0.0{{ .Values.etcd.addr }}"
+          value: "0.0.0.0:{{ .Values.etcd.port }}"
         - name: APISIX_KEY_PREFIX
           value: "{{ .Values.etcd.prefix }}"
         image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
@@ -61,6 +61,9 @@ spec:
         ports:
         - containerPort: {{ splitList ":" .Values.config.metricsAddr | last | int }}
           name: metrics
+          protocol: TCP
+        - containerPort: {{ .Values.etcd.port }}
+          name: etcd
           protocol: TCP
         {{- if .Values.webhook.enabled }}
         - containerPort: {{ .Values.webhook.port }}

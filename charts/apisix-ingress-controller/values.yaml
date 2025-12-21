@@ -93,7 +93,7 @@ config:
 
 # Etcd Adapter configuration
 etcd:
-  addr: ":12379"
+  port: "12379"
   prefix: "/apisix"
 
 # Admission webhook configuration
@@ -130,7 +130,7 @@ gatewayProxy:
     controlPlane:
       # -- List of APISIX control plane Admin API endpoints.
       # example: ["http://apisix-admin.default.svc.cluster.local:9180"]
-      endpoints: []
+      endpoints: ["http://127.0.0.1:9180"]
 
       # -- Alternatively, reference a Kubernetes Service for the APISIX Admin API.
       service:
