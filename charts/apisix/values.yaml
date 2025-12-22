@@ -263,7 +263,7 @@ pingsix:
       # -- Ingress annotations
       annotations: {}
       hosts:
-        - host: pingsix-admin.local
+        - host: apisix-admin.local
           paths:
             - "/*"
       tls: []

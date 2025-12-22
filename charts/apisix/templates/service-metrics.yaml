@@ -21,7 +21,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "apisix.labels" . | nindent 4 }}
-    app.kubernetes.io/service: pingsix-prometheus-metrics
+    app.kubernetes.io/service: apisix-prometheus-metrics
 spec:
   type: ClusterIP
   ports:

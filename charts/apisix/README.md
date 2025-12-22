@@ -298,14 +298,14 @@ kubectl logs -l app.kubernetes.io/name=pingsix -f
 ### Test Health Endpoint
 
 ```bash
-kubectl port-forward svc/pingsix-status 7085:7085
+kubectl port-forward svc/apisix-status 7085:7085
 curl http://localhost:7085/status/ready
 ```
 
 ### Test Admin API
 
 ```bash
-kubectl port-forward svc/pingsix-admin 9181:9181
+kubectl port-forward svc/apisix-admin 9181:9181
 curl -H "X-API-KEY: your-api-key" http://localhost:9181/apisix/admin/routes
 ```
 
