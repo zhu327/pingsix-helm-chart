@@ -268,7 +268,7 @@ pingsix:
   # Independent of admin API, useful for Kubernetes readiness probes and load balancer health checks
   status:
     enabled: true
-    address: "127.0.0.1:7085"
+    address: "0.0.0.0:7085"
 
   # -- Prometheus metrics configuration
   prometheus:
