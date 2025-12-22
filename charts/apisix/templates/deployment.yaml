@@ -170,7 +170,8 @@ spec:
         {{- if (index .Values "ingress-controller" "enabled") }}
         - name: wait-etcd
           image: {{ .Values.initContainer.image }}:{{ .Values.initContainer.tag }}
-          command: ['sh', '-c', "until nc -z {{ include "apisix.fullname" . }} {{ index .Values "ingress-controller" "etcd" "port" | default "12379" }}; do echo waiting for ingress-controller etcd `date`; sleep 2; done;"]
+          {{- $ingressControllerName := printf "%s-ingress-controller" .Release.Name }}
+          command: ['sh', '-c', "until nc -z {{ $ingressControllerName }} {{ index .Values "ingress-controller" "etcd" "port" | default "12379" }}; do echo waiting for ingress-controller etcd `date`; sleep 2; done;"]
         {{- else if .Values.etcd.enabled }}
         - name: wait-etcd
           image: {{ .Values.initContainer.image }}:{{ .Values.initContainer.tag }}

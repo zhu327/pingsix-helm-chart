@@ -125,7 +125,8 @@ Priority: ingress-controller > built-in etcd > external etcd
 {{- define "apisix.etcd.hosts" -}}
 {{- if (index .Values "ingress-controller" "enabled") }}
 {{- $ingressEtcdPort := index .Values "ingress-controller" "etcd" "port" | default "12379" }}
-{{- printf "http://%s:%s" (include "apisix.fullname" .) $ingressEtcdPort }}
+{{- $ingressControllerName := printf "%s-ingress-controller" .Release.Name -}}
+{{- printf "http://%s:%s" $ingressControllerName $ingressEtcdPort }}
 {{- else if .Values.etcd.enabled }}
 {{- $etcdScheme := include "apisix.etcd.auth.scheme" . }}
 {{- if .Values.etcd.fullnameOverride }}

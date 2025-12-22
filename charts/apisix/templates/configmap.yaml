@@ -87,7 +87,8 @@ data:
       {{- if (index .Values "ingress-controller" "enabled") -}}
         {{- $etcdEnabled = true -}}
         {{- $ingressEtcdPort := index .Values "ingress-controller" "etcd" "port" | default "12379" -}}
-        {{- $etcdHost = list (printf "http://%s:%s" (include "apisix.fullname" .) $ingressEtcdPort) -}}
+        {{- $ingressControllerName := printf "%s-ingress-controller" .Release.Name -}}
+        {{- $etcdHost = list (printf "http://%s:%s" $ingressControllerName $ingressEtcdPort) -}}
         {{- $etcdPrefix = index .Values "ingress-controller" "etcd" "prefix" | default "/apisix" -}}
       {{- /* Priority 2: Built-in etcd */ -}}
       {{- else if .Values.etcd.enabled -}}
