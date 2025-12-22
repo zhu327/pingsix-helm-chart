@@ -67,6 +67,10 @@ spec:
           image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+          {{- if .Values.pingsix.logLevel }}
+            - name: RUST_LOG
+              value: {{ .Values.pingsix.logLevel | quote }}
+          {{- end }}
           {{- if .Values.timezone }}
             - name: TZ
               value: {{ .Values.timezone }}

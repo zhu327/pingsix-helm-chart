@@ -227,6 +227,10 @@ pingora:
 
 # -- Pingsix gateway configuration
 pingsix:
+  # -- Log level for Pingsix (RUST_LOG environment variable)
+  # Valid values: error, warn, info, debug, trace
+  logLevel: "info"
+  
   # -- HTTP/HTTPS listeners configuration
   # Each listener binds to an address and can optionally enable TLS and HTTP/2
   listeners:
