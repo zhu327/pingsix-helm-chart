@@ -78,8 +78,8 @@ spec:
           ports:
             {{- /* Dynamic ports from listeners */ -}}
             {{- range $idx, $listener := .Values.pingsix.listeners }}
-            {{- $parts := split ":" $listener.address }}
-            {{- $port := last $parts | int }}
+            {{- $parts := splitList ":" $listener.address }}
+            {{- $port := index $parts (sub (len $parts) 1) | int }}
             - name: listener-{{ $idx }}
               containerPort: {{ $port }}
               protocol: TCP
@@ -87,8 +87,8 @@ spec:
             
             {{- /* Admin API port */ -}}
             {{- if .Values.pingsix.admin.enabled }}
-            {{- $adminParts := split ":" .Values.pingsix.admin.address }}
-            {{- $adminPort := last $adminParts | int }}
+            {{- $adminParts := splitList ":" .Values.pingsix.admin.address }}
+            {{- $adminPort := index $adminParts (sub (len $adminParts) 1) | int }}
             - name: admin
               containerPort: {{ $adminPort }}
               protocol: TCP
@@ -96,8 +96,8 @@ spec:
             
             {{- /* Status port */ -}}
             {{- if .Values.pingsix.status.enabled }}
-            {{- $statusParts := split ":" .Values.pingsix.status.address }}
-            {{- $statusPort := last $statusParts | int }}
+            {{- $statusParts := splitList ":" .Values.pingsix.status.address }}
+            {{- $statusPort := index $statusParts (sub (len $statusParts) 1) | int }}
             - name: status
               containerPort: {{ $statusPort }}
               protocol: TCP
@@ -105,29 +105,29 @@ spec:
             
             {{- /* Prometheus port */ -}}
             {{- if .Values.pingsix.prometheus.enabled }}
-            {{- $promParts := split ":" .Values.pingsix.prometheus.address }}
-            {{- $promPort := last $promParts | int }}
+            {{- $promParts := splitList ":" .Values.pingsix.prometheus.address }}
+            {{- $promPort := index $promParts (sub (len $promParts) 1) | int }}
             - name: prometheus
               containerPort: {{ $promPort }}
               protocol: TCP
             {{- end }}
 
-          {{- /* Readiness probe */ -}}
+          {{- /* Readiness probe */}}
           readinessProbe:
             failureThreshold: 6
             initialDelaySeconds: 10
             periodSeconds: 10
             successThreshold: 1
             {{- if .Values.pingsix.status.enabled }}
-            {{- $statusParts := split ":" .Values.pingsix.status.address }}
-            {{- $statusPort := last $statusParts | int }}
+            {{- $statusParts := splitList ":" .Values.pingsix.status.address }}
+            {{- $statusPort := index $statusParts (sub (len $statusParts) 1) | int }}
             httpGet:
               path: /status/ready
               port: {{ $statusPort }}
             {{- else }}
             {{- $firstListener := index .Values.pingsix.listeners 0 }}
-            {{- $parts := split ":" $firstListener.address }}
-            {{- $port := last $parts | int }}
+            {{- $parts := splitList ":" $firstListener.address }}
+            {{- $port := index $parts (sub (len $parts) 1) | int }}
             tcpSocket:
               port: {{ $port }}
             {{- end }}

@@ -49,8 +49,8 @@ spec:
   ports:
   {{- /* Dynamically create ports from listeners */ -}}
   {{- range $idx, $listener := .Values.pingsix.listeners }}
-  {{- $parts := split ":" $listener.address }}
-  {{- $port := last $parts | int }}
+  {{- $addressParts := splitList ":" $listener.address }}
+  {{- $port := index $addressParts (sub (len $addressParts) 1) | int }}
   - name: {{ if $listener.tls }}https{{ else }}http{{ end }}-{{ $idx }}
     port: {{ $port }}
     targetPort: {{ $port }}

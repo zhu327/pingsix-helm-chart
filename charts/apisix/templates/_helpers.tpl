@@ -96,8 +96,8 @@ Usage:
 {{ include "apisix.listener.port" "0.0.0.0:8080" }}
 */}}
 {{- define "apisix.listener.port" -}}
-{{- $parts := split ":" . }}
-{{- last $parts }}
+{{- $parts := splitList ":" . }}
+{{- index $parts (sub (len $parts) 1) }}
 {{- end -}}
 
 {{/*
@@ -106,14 +106,15 @@ Usage:
 {{ include "apisix.listener.ip" "0.0.0.0:8080" }}
 */}}
 {{- define "apisix.listener.ip" -}}
-{{- $parts := split ":" . }}
+{{- $parts := splitList ":" . }}
 {{- if gt (len $parts) 2 }}
 {{- /* IPv6 address like [::]:8080 */ -}}
-{{- $joined := join ":" (initial $parts) }}
+{{- $allButLast := slice $parts 0 (sub (len $parts) 1) }}
+{{- $joined := join ":" $allButLast }}
 {{- trim $joined "[]" }}
 {{- else }}
 {{- /* IPv4 address like 0.0.0.0:8080 */ -}}
-{{- first $parts }}
+{{- index $parts 0 }}
 {{- end }}
 {{- end -}}
 

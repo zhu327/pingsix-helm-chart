@@ -25,8 +25,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  {{- $adminParts := split ":" .Values.pingsix.admin.address }}
-  {{- $adminPort := last $adminParts | int }}
+  {{- $adminParts := splitList ":" .Values.pingsix.admin.address }}
+  {{- $adminPort := index $adminParts (sub (len $adminParts) 1) | int }}
   - name: admin
     port: {{ $adminPort }}
     targetPort: {{ $adminPort }}

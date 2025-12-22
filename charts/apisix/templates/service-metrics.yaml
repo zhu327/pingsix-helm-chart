@@ -25,8 +25,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  {{- $promParts := split ":" .Values.pingsix.prometheus.address }}
-  {{- $promPort := last $promParts | int }}
+  {{- $promParts := splitList ":" .Values.pingsix.prometheus.address }}
+  {{- $promPort := index $promParts (sub (len $promParts) 1) | int }}
   - name: prometheus
     port: {{ $promPort }}
     targetPort: {{ $promPort }}
