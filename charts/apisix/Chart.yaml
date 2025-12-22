@@ -16,8 +16,8 @@
 #
 apiVersion: v2
 name: apisix
-description: A Helm chart for Apache APISIX v3
-icon: https://apache.org/logos/res/apisix/apisix.png
+description: A Helm chart for Pingsix - A high-performance API gateway built on Pingora
+icon: https://raw.githubusercontent.com/cloudflare/pingora/main/docs/assets/pingora_logo.svg
 # A chart can be either an 'application' or a 'library' chart.
 #
 # Application charts are a collection of templates that can be packaged into versioned archives
@@ -31,14 +31,14 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 2.12.5
+version: 1.0.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
-appVersion: 3.14.1
+appVersion: 1.0.0
 sources:
-  - https://github.com/apache/apisix-helm-chart
+  - https://github.com/zhu327/pingsix-helm-chart
 
 dependencies:
   - name: etcd

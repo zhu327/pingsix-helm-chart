@@ -79,28 +79,6 @@ Usage:
     {{- end }}
 {{- end -}}
 
-{{- define "apisix.basePluginAttrs" -}}
-{{- if .Values.apisix.prometheus.enabled }}
-prometheus:
-  export_addr:
-    ip: 0.0.0.0
-    port: {{ .Values.apisix.prometheus.containerPort }}
-  export_uri: {{ .Values.apisix.prometheus.path }}
-  metric_prefix: {{ .Values.apisix.prometheus.metricPrefix }}
-{{- end }}
-{{- if .Values.apisix.customPlugins.enabled }}
-{{- range $plugin := .Values.apisix.customPlugins.plugins }}
-{{- if $plugin.attrs }}
-{{ $plugin.name }}: {{- $plugin.attrs | toYaml | nindent 2 }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end -}}
-
-{{- define "apisix.pluginAttrs" -}}
-{{- merge .Values.apisix.pluginAttrs (include "apisix.basePluginAttrs" . | fromYaml) | toYaml -}}
-{{- end -}}
-
 {{/*
 Scheme to use while connecting etcd
 */}}
@@ -113,47 +91,61 @@ Scheme to use while connecting etcd
 {{- end }}
 
 {{/*
-Return the name of etcd password secret
+Parse listener address and return port
+Usage:
+{{ include "apisix.listener.port" "0.0.0.0:8080" }}
 */}}
-{{- define "apisix.etcd.secretName" -}}
-{{- if and .Values.etcd.enabled .Values.etcd.auth.rbac.create }}
-{{- template "common.names.fullname" .Subcharts.etcd }}
-{{- else if .Values.externalEtcd.existingSecret }}
-{{- print .Values.externalEtcd.existingSecret }}
-{{- else if .Values.externalEtcd.user }}
-{{- printf "etcd-%s" (include "apisix.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- define "apisix.listener.port" -}}
+{{- $parts := split ":" . }}
+{{- last $parts }}
+{{- end -}}
+
+{{/*
+Parse listener address and return IP
+Usage:
+{{ include "apisix.listener.ip" "0.0.0.0:8080" }}
+*/}}
+{{- define "apisix.listener.ip" -}}
+{{- $parts := split ":" . }}
+{{- if gt (len $parts) 2 }}
+{{- /* IPv6 address like [::]:8080 */ -}}
+{{- $joined := join ":" (initial $parts) }}
+{{- trim $joined "[]" }}
+{{- else }}
+{{- /* IPv4 address like 0.0.0.0:8080 */ -}}
+{{- first $parts }}
 {{- end }}
 {{- end -}}
 
 {{/*
-Return the password key name of etcd secret
+Get etcd host list based on priority
+Priority: ingress-controller > built-in etcd > external etcd
 */}}
-{{- define "apisix.etcd.secretPasswordKey" -}}
-{{- if .Values.etcd.enabled }}
-{{- print "etcd-root-password" }}
+{{- define "apisix.etcd.hosts" -}}
+{{- if (index .Values "ingress-controller" "enabled") }}
+{{- $ingressEtcdPort := index .Values "ingress-controller" "etcd" "port" | default "12379" }}
+{{- printf "http://%s:%s" (include "apisix.fullname" .) $ingressEtcdPort }}
+{{- else if .Values.etcd.enabled }}
+{{- $etcdScheme := include "apisix.etcd.auth.scheme" . }}
+{{- if .Values.etcd.fullnameOverride }}
+{{- printf "%s://%s:%d" $etcdScheme .Values.etcd.fullnameOverride (.Values.etcd.service.port | int) }}
 {{- else }}
-{{- print .Values.externalEtcd.secretPasswordKey }}
+{{- printf "%s://%s-etcd.%s.svc.cluster.local:%d" $etcdScheme .Release.Name .Release.Namespace (.Values.etcd.service.port | int) }}
+{{- end }}
+{{- else if .Values.externalEtcd.host }}
+{{- range .Values.externalEtcd.host }}
+{{- . }}
+{{- end }}
 {{- end }}
 {{- end -}}
 
 {{/*
-Key to use to fetch admin token from secret
+Check if etcd is enabled (any of the three options)
 */}}
-{{- define "apisix.admin.credentials.secretAdminKey" -}}
-{{- if .Values.apisix.admin.credentials.secretAdminKey }}
-{{- .Values.apisix.admin.credentials.secretAdminKey }}
+{{- define "apisix.etcd.enabled" -}}
+{{- if or (index .Values "ingress-controller" "enabled") .Values.etcd.enabled .Values.externalEtcd.host }}
+{{- "true" }}
 {{- else }}
-{{- "admin" }}
+{{- "false" }}
 {{- end }}
-{{- end }}
-
-{{/*
-Key to use to fetch viewer token from secret
-*/}}
-{{- define "apisix.admin.credentials.secretViewerKey" -}}
-{{- if .Values.apisix.admin.credentials.secretViewerKey }}
-{{- .Values.apisix.admin.credentials.secretViewerKey }}
-{{- else }}
-{{- "viewer" }}
-{{- end }}
-{{- end }}
+{{- end -}}

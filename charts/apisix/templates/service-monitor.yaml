@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- if .Values.metrics.serviceMonitor.enabled }}
+{{- if and .Values.pingsix.prometheus.enabled .Values.metrics.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -35,10 +35,10 @@ spec:
   selector:
     matchLabels:
       {{- include "apisix.labels" . | nindent 6 }}
-      app.kubernetes.io/service: apisix-prometheus-metrics
+      app.kubernetes.io/service: pingsix-prometheus-metrics
   endpoints:
   - scheme: http
     targetPort: prometheus
-    path: {{ .Values.apisix.prometheus.path }}
+    path: /metrics
     interval: {{ .Values.metrics.serviceMonitor.interval }}
 {{- end }}

@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-{{- if .Values.apisix.prometheus.enabled}}
+{{- if .Values.pingsix.prometheus.enabled}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -21,13 +21,15 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "apisix.labels" . | nindent 4 }}
-    app.kubernetes.io/service: apisix-prometheus-metrics
+    app.kubernetes.io/service: pingsix-prometheus-metrics
 spec:
   type: ClusterIP
   ports:
+  {{- $promParts := split ":" .Values.pingsix.prometheus.address }}
+  {{- $promPort := last $promParts | int }}
   - name: prometheus
-    port: {{ .Values.apisix.prometheus.containerPort }}
-    targetPort: {{ .Values.apisix.prometheus.containerPort }}
+    port: {{ $promPort }}
+    targetPort: {{ $promPort }}
     protocol: TCP
   selector:
     {{- include "apisix.selectorLabels" . | nindent 4 }}

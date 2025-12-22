@@ -47,60 +47,14 @@ spec:
   {{- end }}
   {{- end }}
   ports:
-  {{- if .Values.service.http.enabled }}
-  - name: apisix-gateway
-    port: {{ .Values.service.http.servicePort }}
-    targetPort: {{ .Values.service.http.containerPort }}
-  {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.http.nodePort))) }}
-    nodePort: {{ .Values.service.http.nodePort }}
-  {{- end }}
-    protocol: TCP
-  {{- end }}
-  {{- range .Values.service.http.additionalContainerPorts }}
-  - name: apisix-gateway-{{ .port | toString }}
-    port: {{ .port }}
-    targetPort: {{ .port }}
-    protocol: TCP
-  {{- end }}
-  {{- if or .Values.apisix.ssl.enabled }}
-  - name: apisix-gateway-tls
-    port: {{ .Values.service.tls.servicePort }}
-    targetPort: {{ .Values.apisix.ssl.containerPort }}
-  {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.tls.nodePort))) }}
-    nodePort: {{ .Values.service.tls.nodePort }}
-  {{- end }}
-    protocol: TCP
-  {{- end }}
-  {{- range .Values.apisix.ssl.additionalContainerPorts }}
-  - name: apisix-gateway-tls-{{ .port | toString }}
-    port: {{ .port }}
-    targetPort: {{ .port }}
-  {{- end }}
-  {{- if and .Values.service.stream.enabled (or (gt (len .Values.service.stream.tcp) 0) (gt (len .Values.service.stream.udp) 0)) }}
-  {{- with .Values.service.stream }}
-  {{- if (gt (len .tcp) 0) }}
-  {{- range $index, $port := .tcp }}
-  - name: proxy-tcp-{{ $index | toString }}
-  {{- if kindIs "map" $port }}
-    port: {{ splitList ":" ($port.addr | toString) | last }}
-    targetPort: {{ splitList ":" ($port.addr | toString) | last }}
-    protocol: TCP
-  {{- else }}
+  {{- /* Dynamically create ports from listeners */ -}}
+  {{- range $idx, $listener := .Values.pingsix.listeners }}
+  {{- $parts := split ":" $listener.address }}
+  {{- $port := last $parts | int }}
+  - name: {{ if $listener.tls }}https{{ else }}http{{ end }}-{{ $idx }}
     port: {{ $port }}
     targetPort: {{ $port }}
     protocol: TCP
-  {{- end }}
-  {{- end }}
-  {{- end }}
-  {{- if (gt (len .udp) 0) }}
-  {{- range $index, $port := .udp }}
-  - name: proxy-udp-{{ $index | toString }}
-    port: {{ $port }}
-    targetPort: {{ $port }}
-    protocol: UDP
-  {{- end }}
-  {{- end }}
-  {{- end }}
   {{- end }}
   selector:
     {{- include "apisix.selectorLabels" . | nindent 4 }}

@@ -14,12 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- if (and .Values.apisix.admin.enabled .Values.apisix.admin.ingress.enabled) -}}
+{{- if (and .Values.pingsix.admin.enabled .Values.pingsix.admin.ingress.enabled) -}}
 {{- $fullName := include "apisix.fullname" . -}}
-{{- $svcPort := .Values.apisix.admin.servicePort -}}
-{{- if and .Values.apisix.admin.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
-  {{- if not (hasKey .Values.apisix.admin.ingress.annotations "kubernetes.io/ingress.class") }}
-  {{- $_ := set .Values.apisix.admin.ingress.annotations "kubernetes.io/ingress.class" .Values.apisix.admin.ingress.className}}
+{{- $adminParts := split ":" .Values.pingsix.admin.address }}
+{{- $svcPort := last $adminParts | int -}}
+{{- if and .Values.pingsix.admin.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
+  {{- if not (hasKey .Values.pingsix.admin.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set .Values.pingsix.admin.ingress.annotations "kubernetes.io/ingress.class" .Values.pingsix.admin.ingress.className}}
   {{- end }}
 {{- end }}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.Version }}
@@ -34,17 +35,17 @@ metadata:
   name: {{ $fullName }}-admin
   labels:
     {{- include "apisix.labels" . | nindent 4 }}
-  {{- with .Values.apisix.admin.ingress.annotations }}
+  {{- with .Values.pingsix.admin.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if and .Values.apisix.admin.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName: {{ .Values.apisix.admin.ingress.className }}
+  {{- if and .Values.pingsix.admin.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.pingsix.admin.ingress.className }}
   {{- end }}
-  {{- if .Values.apisix.admin.ingress.tls }}
+  {{- if .Values.pingsix.admin.ingress.tls }}
   tls:
-    {{- range .Values.apisix.admin.ingress.tls }}
+    {{- range .Values.pingsix.admin.ingress.tls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}
@@ -53,7 +54,7 @@ spec:
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.apisix.admin.ingress.hosts }}
+    {{- range .Values.pingsix.admin.ingress.hosts }}
     - host: {{ .host | quote }}
       http:
         paths:
