@@ -253,7 +253,7 @@ pingsix:
   # -- Admin API configuration
   # The admin API allows managing routes, upstreams, etc. dynamically when etcd is configured
   admin:
-    enabled: true
+    enabled: false
     address: "0.0.0.0:9181"
     # -- API key for admin authentication (can be overridden via secret)
     apiKey: "edd1c9f034335f136f87ad84b625c8f1"
