@@ -220,17 +220,33 @@ pingora:
   pidFile: /run/pingora.pid
   # -- Upgrade socket path for graceful upgrades
   upgradeSock: /tmp/pingora_upgrade.sock
-  # -- User to run as (if started as root)
-  user: nobody
-  # -- Group to run as
-  group: webusers
+  # -- User to run as (if started as root). Leave empty to skip privilege drop
+  # (the Docker image runs as non-root 'pingsix' user and does not need this).
+  user: ""
+  # -- Group to run as. Leave empty to skip group switch.
+  group: ""
 
 # -- Pingsix gateway configuration
 pingsix:
   # -- Log level for Pingsix (RUST_LOG environment variable)
   # Valid values: error, warn, info, debug, trace
   logLevel: "info"
-  
+
+  # -- Global default settings applied when a route/upstream does not override them
+  defaults:
+    # -- Fallback upstream connect/send/read timeout (seconds).
+    # Used when a route or upstream does not set its own `timeout`.
+    # upstreamTimeout:
+    #   connect: 5
+    #   send: 30
+    #   read: 30
+    # -- Maximum time (seconds) spent resolving an upstream DNS name (1-60, default: 5)
+    dnsResolutionTimeout: 5
+    # -- Default capacity knobs for the response cache plugin
+    # cache:
+    #   maxMemoryBytes: 536870912       # 512 MB
+    #   defaultMaxObjectBytes: 1048576  # 1 MB
+
   # -- HTTP/HTTPS listeners configuration
   # Each listener binds to an address and can optionally enable TLS and HTTP/2
   listeners:
@@ -257,6 +273,9 @@ pingsix:
     address: "0.0.0.0:9181"
     # -- API key for admin authentication (can be overridden via secret)
     apiKey: "edd1c9f034335f136f87ad84b625c8f1"
+    # -- Allow binding Admin API to a non-loopback address without TLS (default: false).
+    # Required when address is not 127.0.0.1/::1.
+    allowInsecureRemote: false
     # -- Using ingress access Pingsix admin service
     ingress:
       enabled: false
@@ -273,6 +292,16 @@ pingsix:
   status:
     enabled: true
     address: "0.0.0.0:7085"
+    # -- Seconds after which an etcd sync is considered stale (default: 300).
+    # Only relevant when etcd is configured.
+    # configStaleAfter: 300
+    # -- Whether readiness probe fails when etcd config is stale (default: true)
+    # failReadinessWhenStale: true
+    # -- API key to enable detailed diagnostics on a non-loopback plaintext listener.
+    # Required together with allowInsecureRemote for remote diagnostics.
+    # diagnosticsApiKey: ""
+    # -- Allow protected diagnostics on a non-loopback plaintext listener (default: false)
+    # allowInsecureRemote: false
 
   # -- Prometheus metrics configuration
   prometheus:
@@ -289,6 +318,13 @@ pingsix:
   log:
     enabled: false
     path: ""
+    # -- Maximum size in bytes for a single log file (default: 104857600 = 100MB)
+    # maxSizeBytes: 104857600
+    # -- Number of rotated backup files to keep (default: 5)
+    # maxBackups: 5
+    # -- Log rotation strategy: internal (default, in-process rotation),
+    # external (rely on copytruncate), or disabled (no rotation)
+    # rotation: internal
 
 # -- Static routes configuration (used when etcd is not configured)
 # Routes define how incoming requests are matched and forwarded to upstreams
@@ -401,6 +437,18 @@ externalEtcd:
   # -- if etcd.enabled is true, use etcd.auth.rbac.rootPassword instead.
   # -- if etcd.enabled is false, password for external etcd. WARNING: This will be stored in plain text in the ConfigMap.
   password: ""
+  # -- TLS/mTLS configuration for connecting to external etcd.
+  # When enabled, cert files must be available in the container (e.g. via extraVolumes/extraVolumeMounts).
+  tls:
+    enabled: false
+    # -- Path to CA certificate file (required when tls.enabled)
+    # caCert: "/etc/pingsix/etcd-tls/ca.crt"
+    # -- Path to client certificate file (optional, for mTLS)
+    # clientCert: "/etc/pingsix/etcd-tls/tls.crt"
+    # -- Path to client key file (optional, for mTLS; must pair with clientCert)
+    # clientKey: "/etc/pingsix/etcd-tls/tls.key"
+    # -- TLS SNI domain name (optional)
+    # domain: ""
 
 # -- etcd configuration
 # use the FQDN address or the IP of the etcd
@@ -421,6 +469,8 @@ etcd:
   prefix: "/apisix"
   # -- Set the timeout value in seconds for subsequent socket operations from pingsix to etcd cluster
   timeout: 30
+  # -- Set the connection timeout in seconds for establishing the initial etcd connection (optional)
+  # connectTimeout: 10
 
   # -- if etcd.enabled is true, set more values of bitnamilegacy/etcd helm chart
   auth:

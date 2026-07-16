@@ -53,6 +53,29 @@ data:
 
     # Pingsix gateway configuration
     pingsix:
+      {{- /* Global defaults */ -}}
+      {{- if .Values.pingsix.defaults }}
+      defaults:
+        {{- if .Values.pingsix.defaults.upstreamTimeout }}
+        upstream_timeout:
+          connect: {{ .Values.pingsix.defaults.upstreamTimeout.connect }}
+          send: {{ .Values.pingsix.defaults.upstreamTimeout.send }}
+          read: {{ .Values.pingsix.defaults.upstreamTimeout.read }}
+        {{- end }}
+        {{- if .Values.pingsix.defaults.dnsResolutionTimeout }}
+        dns_resolution_timeout: {{ .Values.pingsix.defaults.dnsResolutionTimeout }}
+        {{- end }}
+        {{- if .Values.pingsix.defaults.cache }}
+        cache:
+          {{- if .Values.pingsix.defaults.cache.maxMemoryBytes }}
+          max_memory_bytes: {{ .Values.pingsix.defaults.cache.maxMemoryBytes }}
+          {{- end }}
+          {{- if .Values.pingsix.defaults.cache.defaultMaxObjectBytes }}
+          default_max_object_bytes: {{ .Values.pingsix.defaults.cache.defaultMaxObjectBytes }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+
       # Listeners configuration
       listeners:
       {{- range $idx, $listener := .Values.pingsix.listeners }}
@@ -115,12 +138,28 @@ data:
         {{- end }}
         prefix: {{ $etcdPrefix | quote }}
         timeout: {{ $etcdTimeout }}
+        {{- if .Values.etcd.connectTimeout }}
+        connect_timeout: {{ .Values.etcd.connectTimeout }}
+        {{- end }}
         {{- if and .Values.etcd.enabled .Values.etcd.auth.rbac.create .Values.etcd.auth.rbac.rootPassword }}
         user: "root"
         password: {{ .Values.etcd.auth.rbac.rootPassword | quote }}
         {{- else if and (not .Values.etcd.enabled) .Values.externalEtcd.user .Values.externalEtcd.password }}
         user: {{ .Values.externalEtcd.user | quote }}
         password: {{ .Values.externalEtcd.password | quote }}
+        {{- end }}
+        {{- if and (not .Values.etcd.enabled) .Values.externalEtcd.tls .Values.externalEtcd.tls.enabled }}
+        tls:
+          ca_cert: {{ .Values.externalEtcd.tls.caCert | quote }}
+          {{- if .Values.externalEtcd.tls.clientCert }}
+          client_cert: {{ .Values.externalEtcd.tls.clientCert | quote }}
+          {{- end }}
+          {{- if .Values.externalEtcd.tls.clientKey }}
+          client_key: {{ .Values.externalEtcd.tls.clientKey | quote }}
+          {{- end }}
+          {{- if .Values.externalEtcd.tls.domain }}
+          domain: {{ .Values.externalEtcd.tls.domain | quote }}
+          {{- end }}
         {{- end }}
       {{- end }}
 
@@ -130,6 +169,9 @@ data:
       admin:
         address: {{ .Values.pingsix.admin.address | quote }}
         api_key: {{ .Values.pingsix.admin.apiKey | quote }}
+        {{- if .Values.pingsix.admin.allowInsecureRemote }}
+        allow_insecure_remote: true
+        {{- end }}
       {{- end }}
 
       {{- /* Status endpoint configuration */ -}}
@@ -137,6 +179,18 @@ data:
       # Status/health check endpoint
       status:
         address: {{ .Values.pingsix.status.address | quote }}
+        {{- if .Values.pingsix.status.configStaleAfter }}
+        config_stale_after: {{ .Values.pingsix.status.configStaleAfter }}
+        {{- end }}
+        {{- if hasKey .Values.pingsix.status "failReadinessWhenStale" }}
+        fail_readiness_when_stale: {{ .Values.pingsix.status.failReadinessWhenStale }}
+        {{- end }}
+        {{- if .Values.pingsix.status.diagnosticsApiKey }}
+        diagnostics_api_key: {{ .Values.pingsix.status.diagnosticsApiKey | quote }}
+        {{- end }}
+        {{- if .Values.pingsix.status.allowInsecureRemote }}
+        allow_insecure_remote: true
+        {{- end }}
       {{- end }}
 
       {{- /* Prometheus metrics configuration */ -}}
@@ -158,6 +212,15 @@ data:
       # Custom log file
       log:
         path: {{ .Values.pingsix.log.path | quote }}
+        {{- if .Values.pingsix.log.maxSizeBytes }}
+        max_size_bytes: {{ .Values.pingsix.log.maxSizeBytes }}
+        {{- end }}
+        {{- if .Values.pingsix.log.maxBackups }}
+        max_backups: {{ .Values.pingsix.log.maxBackups }}
+        {{- end }}
+        {{- if .Values.pingsix.log.rotation }}
+        rotation: {{ .Values.pingsix.log.rotation | quote }}
+        {{- end }}
       {{- end }}
 
     {{- /* Static resources configuration (only when etcd is not enabled) */ -}}
