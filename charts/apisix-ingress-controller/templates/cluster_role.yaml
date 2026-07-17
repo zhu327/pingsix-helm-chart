@@ -30,13 +30,21 @@ rules:
   - ""
   resources:
   - namespaces
-  - pods
   - secrets
   - services
   verbs:
   - get
   - list
   - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+  - patch
 - apiGroups:
   - apisix.apache.org
   resources:

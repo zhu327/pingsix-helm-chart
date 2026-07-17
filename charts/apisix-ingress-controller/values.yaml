@@ -91,7 +91,9 @@ config:
     ingressClass: apisix
     defaultIngressClass: false
 
-# Etcd Adapter configuration
+# Etcd Adapter configuration.
+# Exposed via a dedicated Service (fullname-etcd) that selects only the leader
+# pod labeled ingress.pingsix.io/etcd-serving=true after the first successful sync.
 etcd:
   port: "12379"
   prefix: "/apisix"

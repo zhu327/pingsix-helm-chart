@@ -14,18 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# Etcd-adapter Service: only the leader pod that has completed at least one
+# successful sync is selected (ingress.pingsix.io/etcd-serving=true).
+# Do not set publishNotReadyAddresses — empty Endpoints are intentional until sync.
 apiVersion: v1
 kind: Service
 metadata:
   labels:
     {{- include "apisix-ingress-controller-manager.labels" . | nindent 4 }}
-  name: {{ include "apisix-ingress-controller-manager.name.fullname" . }}
+    app.kubernetes.io/component: etcd-adapter
+  name: {{ include "apisix-ingress-controller-manager.etcd.serviceName" . }}
   namespace: {{ .Release.Namespace }}
 spec:
   ports:
-  - name: metrics
-    port: 8080
+  - name: etcd
+    port: {{ .Values.etcd.port }}
     protocol: TCP
-    targetPort: metrics
+    targetPort: etcd
   selector:
-   {{- include "apisix-ingress-controller-manager.selectorLabels" . | nindent 4 }}
+    {{- include "apisix-ingress-controller-manager.selectorLabels" . | nindent 4 }}
+    ingress.pingsix.io/etcd-serving: "true"

@@ -87,3 +87,14 @@ Webhook secret name - ensure it stays within 63 character limit
 {{- $baseName := include "apisix-ingress-controller-manager.name.fullname" . | trunc $maxLen | trimSuffix "-" -}}
 {{- printf "%s%s" $baseName $suffix -}}
 {{- end }}
+
+{{/*
+Etcd-adapter Service name. Only the leader pod with
+ingress.pingsix.io/etcd-serving=true is selected by this Service.
+*/}}
+{{- define "apisix-ingress-controller-manager.etcd.serviceName" -}}
+{{- $suffix := "-etcd" -}}
+{{- $maxLen := sub 63 (len $suffix) | int -}}
+{{- $baseName := include "apisix-ingress-controller-manager.name.fullname" . | trunc $maxLen | trimSuffix "-" -}}
+{{- printf "%s%s" $baseName $suffix -}}
+{{- end }}

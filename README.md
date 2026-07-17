@@ -28,6 +28,10 @@ This repository is based on [apache/apisix-helm-chart](https://github.com/apache
 
 Recommended: PingSIX + ingress controller, without built-in etcd. The ingress controller exposes an etcd-compatible adapter that PingSIX uses for dynamic configuration.
 
+The adapter is served only by the **leader** pod after its first successful sync (`ingress.pingsix.io/etcd-serving=true`). PingSIX connects to the `*-ingress-controller-etcd` Service; Endpoints stay empty until that label is set, which prevents empty-config races on restart or multi-replica failover. Controller replicas > 1 are supported for HA (standby followers do not receive etcd traffic).
+
+The parent chart vendors the Bitnami etcd chart under `charts/apisix/local-charts/etcd` (`file://` dependency) so `helm dependency build` works offline. The ingress-controller subchart is packaged as `charts/apisix/charts/apisix-ingress-controller-*.tgz` — bump its version and rebuild when templates change.
+
 ```bash
 git clone https://github.com/zhu327/pingsix-helm-chart.git
 cd pingsix-helm-chart/charts/apisix

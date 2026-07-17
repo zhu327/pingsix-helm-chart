@@ -119,14 +119,44 @@ Usage:
 {{- end -}}
 
 {{/*
+Fully qualified name of the ingress-controller subchart release.
+Mirrors apisix-ingress-controller-manager.name.fullname with the dependency alias
+"ingress-controller" as the default chart name.
+*/}}
+{{- define "apisix.ingressController.fullname" -}}
+{{- $ic := index .Values "ingress-controller" | default dict -}}
+{{- if $ic.fullnameOverride -}}
+{{- $ic.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default "ingress-controller" $ic.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Etcd-adapter Service name of the ingress-controller subchart.
+Must stay identical to apisix-ingress-controller-manager.etcd.serviceName.
+*/}}
+{{- define "apisix.ingressController.etcd.serviceName" -}}
+{{- $suffix := "-etcd" -}}
+{{- $maxLen := sub 63 (len $suffix) | int -}}
+{{- $baseName := include "apisix.ingressController.fullname" . | trunc $maxLen | trimSuffix "-" -}}
+{{- printf "%s%s" $baseName $suffix -}}
+{{- end -}}
+
+{{/*
 Get etcd host list based on priority
 Priority: ingress-controller > built-in etcd > external etcd
 */}}
 {{- define "apisix.etcd.hosts" -}}
 {{- if (index .Values "ingress-controller" "enabled") }}
 {{- $ingressEtcdPort := index .Values "ingress-controller" "etcd" "port" | default "12379" }}
-{{- $ingressControllerName := printf "%s-ingress-controller" .Release.Name -}}
-{{- printf "http://%s:%s" $ingressControllerName $ingressEtcdPort }}
+{{- $ingressControllerEtcd := include "apisix.ingressController.etcd.serviceName" . -}}
+{{- printf "http://%s:%s" $ingressControllerEtcd $ingressEtcdPort }}
 {{- else if .Values.etcd.enabled }}
 {{- $etcdScheme := include "apisix.etcd.auth.scheme" . }}
 {{- if .Values.etcd.fullnameOverride }}
