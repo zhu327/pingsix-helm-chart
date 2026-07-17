@@ -43,7 +43,6 @@ sources:
 dependencies:
   - name: etcd
     version: 12.0.18
-    # Vendored to avoid Bitnami download during dependency build/CI.
     repository: file://./local-charts/etcd
     condition: etcd.enabled
   - name: apisix-ingress-controller

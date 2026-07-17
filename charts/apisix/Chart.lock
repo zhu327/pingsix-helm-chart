@@ -6,4 +6,4 @@ dependencies:
   repository: file://../apisix-ingress-controller
   version: 1.1.1
 digest: sha256:e36c3ca443969131b704b9ac9cf011d8299b714ac3f81629ed1ecc565240e85b
-generated: "2026-07-17T16:43:26.514185019+08:00"
+generated: "2026-07-17T17:53:42.002385898+08:00"

@@ -32,7 +32,7 @@ The adapter is served only by the **leader** pod after its first successful sync
 
 Readiness for PingSIX is this Service selector only — there is no shared etcd “sync marker” key protocol. An empty config list from a serving endpoint (or from a direct etcd) is treated as intentionally empty.
 
-The parent chart vendors the Bitnami etcd chart under `charts/apisix/local-charts/etcd` (`file://` dependency) so `helm dependency build` works offline. The ingress-controller subchart is packaged as `charts/apisix/charts/apisix-ingress-controller-*.tgz` — bump its version and rebuild when templates change.
+The parent chart uses the Bitnami etcd chart from `https://charts.bitnami.com/bitnami` (version pinned in `Chart.lock`). The ingress-controller subchart is packaged as `charts/apisix/charts/apisix-ingress-controller-*.tgz` — bump its version and rebuild when templates change.
 
 ```bash
 git clone https://github.com/zhu327/pingsix-helm-chart.git
