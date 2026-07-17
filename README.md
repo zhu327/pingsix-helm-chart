@@ -30,6 +30,8 @@ Recommended: PingSIX + ingress controller, without built-in etcd. The ingress co
 
 The adapter is served only by the **leader** pod after its first successful sync (`ingress.pingsix.io/etcd-serving=true`). PingSIX connects to the `*-ingress-controller-etcd` Service; Endpoints stay empty until that label is set, which prevents empty-config races on restart or multi-replica failover. Controller replicas > 1 are supported for HA (standby followers do not receive etcd traffic).
 
+Readiness for PingSIX is this Service selector only — there is no shared etcd “sync marker” key protocol. An empty config list from a serving endpoint (or from a direct etcd) is treated as intentionally empty.
+
 The parent chart vendors the Bitnami etcd chart under `charts/apisix/local-charts/etcd` (`file://` dependency) so `helm dependency build` works offline. The ingress-controller subchart is packaged as `charts/apisix/charts/apisix-ingress-controller-*.tgz` — bump its version and rebuild when templates change.
 
 ```bash

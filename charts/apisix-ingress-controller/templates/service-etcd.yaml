@@ -16,7 +16,9 @@
 #
 # Etcd-adapter Service: only the leader pod that has completed at least one
 # successful sync is selected (ingress.pingsix.io/etcd-serving=true).
-# Do not set publishNotReadyAddresses — empty Endpoints are intentional until sync.
+# This label is the sole cross-component readiness contract for PingSIX; do not
+# rely on ingress-internal etcd barrier keys. Do not set publishNotReadyAddresses
+# — empty Endpoints are intentional until sync.
 apiVersion: v1
 kind: Service
 metadata:
