@@ -87,6 +87,8 @@ The following table lists the main configurable parameters of the Pingsix chart 
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+| `pingsix.dataEncryption.enable` | Enable encryption of sensitive data stored in etcd | `false` |
+| `pingsix.dataEncryption.keyring` | Encryption keys; first key encrypts and all keys decrypt | `[]` |
 | `pingsix.listeners` | HTTP/HTTPS listeners configuration | See values.yaml |
 | `pingsix.listeners[].address` | Listener bind address (e.g., "0.0.0.0:8080") | - |
 | `pingsix.listeners[].tls.secretName` | Kubernetes Secret name for TLS certificates | `nil` |

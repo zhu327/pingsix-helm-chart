@@ -247,6 +247,13 @@ pingsix:
     #   maxMemoryBytes: 536870912       # 512 MB
     #   defaultMaxObjectBytes: 1048576  # 1 MB
 
+  # -- Encrypt sensitive data stored in etcd
+  dataEncryption:
+    # -- Enable data encryption
+    enable: false
+    # -- Encryption keys. The first key is used for encryption; remaining keys are used for decryption.
+    keyring: []
+
   # -- HTTP/HTTPS listeners configuration
   # Each listener binds to an address and can optionally enable TLS and HTTP/2
   listeners:

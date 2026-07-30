@@ -76,6 +76,18 @@ data:
         {{- end }}
       {{- end }}
 
+      {{- /* Data encryption configuration */ -}}
+      {{- if .Values.pingsix.dataEncryption.enable }}
+      data_encryption:
+        enable: true
+        {{- if .Values.pingsix.dataEncryption.keyring }}
+        keyring:
+        {{- range .Values.pingsix.dataEncryption.keyring }}
+          - {{ . | quote }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+
       # Listeners configuration
       listeners:
       {{- range $idx, $listener := .Values.pingsix.listeners }}
