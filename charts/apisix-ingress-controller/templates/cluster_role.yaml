@@ -30,6 +30,7 @@ rules:
   - ""
   resources:
   - namespaces
+  - configmaps
   - secrets
   - services
   verbs:
@@ -58,6 +59,7 @@ rules:
   - consumers
   - gatewayproxies
   - httproutepolicies
+  - l4routepolicies
   - pluginconfigs
   verbs:
   - get
@@ -75,6 +77,7 @@ rules:
   - backendtrafficpolicies/status
   - consumers/status
   - httproutepolicies/status
+  - l4routepolicies/status
   verbs:
   - get
   - update
